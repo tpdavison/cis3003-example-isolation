@@ -14,9 +14,13 @@ namespace Movies.Web
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        private IWebHostEnvironment _env = null;
+
+        public Startup(IConfiguration configuration,
+                       IWebHostEnvironment env)
         {
             Configuration = configuration;
+            _env = env;
         }
 
         public IConfiguration Configuration { get; }
@@ -24,7 +28,14 @@ namespace Movies.Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddHttpClient<IReviewsService, ReviewsService>();
+            if (_env.IsDevelopment())
+            {
+                services.AddTransient<IReviewsService, FakeReviewsService>();
+            }
+            else
+            {
+                services.AddHttpClient<IReviewsService, ReviewsService>();
+            }
 
             services.AddControllersWithViews();
         }
